@@ -218,9 +218,9 @@ class TaskDependencySensor(BaseSensorOperator):
         self.latest = latest
         self.poke_interval = poke_interval
         self._poke_count = 0
-        self._workspace_obj = WorkspaceClient(
-            host=self.databricks_host, token=self.databricks_token.get_secret_value()
-        )
+        # self._workspace_obj = WorkspaceClient(
+        #     host=self.databricks_host, token=self.databricks_token.get_secret_value()
+        # )
 
     # def get_execution_start_time_unix_milliseconds(self) -> int:
     # 
