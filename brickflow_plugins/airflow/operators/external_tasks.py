@@ -10,7 +10,7 @@ from airflow.sensors.base import BaseSensorOperator
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 from requests import HTTPError
-
+from brickflow.context import ctx
 from datetime import datetime, timedelta
 from dateutil.parser import parse  # type: ignore[import-untyped]
 import time
@@ -218,6 +218,35 @@ class TaskDependencySensor(BaseSensorOperator):
         self.poke_interval = poke_interval
         self._poke_count = 0
 
+    def get_execution_start_time_unix_milliseconds(self) -> int:
+
+        run_id = ctx.dbutils_widget_get_or_else("brickflow_parent_run_id", None)
+        if run_id is None:
+            raise TaskDependencySensor(
+                "run_id is empty, brickflow_parent_run_id parameter is not found "
+                "or no value present"
+            )
+
+        run = self._workspace_obj.jobs.get_run(run_id=run_id)
+
+        # Convert Unix timestamp in milliseconds to datetime object to easily incorporate the delta
+        start_time = datetime.fromtimestamp(run.start_time / 1000)
+        execution_start_time = start_time - self.delta
+
+        # Convert datetime object back to Unix timestamp in miliseconds
+        execution_start_time_unix_miliseconds = int(
+            execution_start_time.timestamp() * 1000
+        )
+
+        self.log.info(f"This workflow started at {start_time}")
+        self.log.info(
+            f"Going to check runs for job_id {self.dependency_job_id} from {execution_start_time} onwards"
+        )
+        self.log.info(
+            f"{execution_start_time} in UNIX miliseconds is {execution_start_time_unix_miliseconds}"
+        )
+        return execution_start_time_unix_miliseconds
+
     def get_execution_stats(self):
         """Function to get the execution stats for task_id within a execution delta window
 
@@ -231,9 +260,7 @@ class TaskDependencySensor(BaseSensorOperator):
         external_dag_id = self.external_dag_id
         external_task_id = self.external_task_id
         execution_delta = self.execution_delta
-        execution_window_tz = (datetime.now() + execution_delta).strftime(
-            "%Y-%m-%dT%H:%M:%SZ"
-        )
+        execution_window_tz = self.get_execution_start_time_unix_milliseconds()
         headers = {
             "Content-Type": "application/json",
             "cache-control": "no-cache",
@@ -299,11 +326,11 @@ class TaskDependencySensor(BaseSensorOperator):
         task_state = task_response.json()["state"]
         return task_state
 
-    def poke(self, context):
+    def poke(self, context,execution_window_tz):
         log.info(f"executing poke.. {self._poke_count}")
         self._poke_count = self._poke_count + 1
         logging.info("Poking.. {0} round".format(str(self._poke_count)))
-        task_status = self.get_execution_stats()
+        task_status = self.get_execution_stats(execution_window_tz)
         log.info(f"task_status= {task_status}")
         return task_status
 
@@ -321,15 +348,13 @@ class TaskDependencySensor(BaseSensorOperator):
         external_dag_id = self.external_dag_id
         external_task_id = self.external_task_id
         execution_delta = self.execution_delta
-        execution_window_tz = (datetime.now() + execution_delta).strftime(
-            "%Y-%m-%dT%H:%M:%SZ"
-        )
+        execution_window_tz = self.get_execution_start_time_unix_milliseconds()
         log.info(
             f"Executing TaskDependency Sensor Operator to check successful run for {external_dag_id} dag, task {external_task_id} after {execution_window_tz} "
         )
         status = ""
         while status not in allowed_states:
-            status = self.poke(context)
+            status = self.poke(context,execution_window_tz)
             if status == "failed":
                 log.error(
                     f"Upstream dag {external_dag_id} failed at {external_task_id} task "
