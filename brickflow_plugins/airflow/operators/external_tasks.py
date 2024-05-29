@@ -275,12 +275,12 @@ class TaskDependencySensor(BaseSensorOperator):
         external_dag_id = self.external_dag_id
         external_task_id = self.external_task_id
         execution_delta = self.execution_delta
-        execution_window_tz = "{{job.trigger.time.iso_date}}"
-        log.info(f"brickflow start date {execution_window_tz}")
-        execution_start_time = datetime.fromisoformat(execution_window_tz)
-
-        execution_start_time = execution_start_time.replace(second=0, microsecond=0)
-        execution_start_time_str = execution_start_time.strftime('%Y-%m-%dT%H:%M:%S%z')
+        execution_window_tz = self.get_execution_start_time_unix_milliseconds()
+        # log.info(f"brickflow start date {execution_window_tz}")
+        # execution_start_time = datetime.fromisoformat(execution_window_tz)
+        # 
+        # execution_start_time = execution_start_time.replace(second=0, microsecond=0)
+        # execution_start_time_str = execution_start_time.strftime('%Y-%m-%dT%H:%M:%S%z')
 
 
 
