@@ -16,6 +16,8 @@ from dateutil.parser import parse  # type: ignore[import-untyped]
 import time
 import pytz
 from brickflow_plugins import log
+from databricks.sdk import WorkspaceClient
+from datetime import datetime, timedelta,timezone
 
 
 class DagSchedule:
@@ -192,6 +194,8 @@ class TaskDependencySensor(BaseSensorOperator):
         self,
         external_dag_id,
         external_task_id,
+        databricks_host: str,
+        databricks_token: Union[str, SecretStr],
         airflow_auth: AirflowClusterAuth,
         allowed_states=None,
         execution_delta=None,
@@ -208,7 +212,12 @@ class TaskDependencySensor(BaseSensorOperator):
             raise Exception(
                 "Only one of `execution_date` or `execution_delta_json` maybe provided to Sensor; not more than one."
             )
-
+        self.databricks_host = databricks_host
+        self.databricks_token = (
+            databricks_token
+            if isinstance(databricks_token, SecretStr)
+            else SecretStr(databricks_token)
+        )
         self.external_dag_id = external_dag_id
         self.external_task_id = external_task_id
         self.allowed_states = allowed_states
@@ -217,8 +226,43 @@ class TaskDependencySensor(BaseSensorOperator):
         self.latest = latest
         self.poke_interval = poke_interval
         self._poke_count = 0
+        self._workspace_obj = WorkspaceClient(
+            host=self.databricks_host, token=self.databricks_token.get_secret_value()
+        )
 
-    def get_execution_stats(self):
+    def get_execution_start_time_unix_milliseconds(self) -> int:
+
+        run_id = ctx.dbutils_widget_get_or_else("brickflow_parent_run_id", None)
+        if run_id is None:
+            raise TaskDependencySensor(
+                "run_id is empty, brickflow_parent_run_id parameter is not found "
+                "or no value present"
+            )
+
+        run = self._workspace_obj.jobs.get_run(run_id=run_id)
+
+        # Convert Unix timestamp in milliseconds to datetime object to easily incorporate the delta
+        start_time = datetime.fromtimestamp(run.start_time / 1000)
+        execution_start_time = start_time - self.delta
+        execution_start_time = execution_start_time.replace(second=0, microsecond=0)
+        # Convert datetime object back to Unix timestamp in miliseconds
+        execution_start_time_unix_miliseconds = int(
+            execution_start_time.timestamp() * 1000
+        )
+
+        date_format = '%Y-%m-%dT%H:%M:%SZ'
+        execution_start_time_unix_miliseconds = datetime.strptime(execution_start_time_unix_miliseconds, date_format).replace(tzinfo=timezone.utc)
+
+        self.log.info(f"This workflow started at {start_time}")
+        self.log.info(
+            f"Going to check runs for job_id {self.dependency_job_id} from {execution_start_time} onwards"
+        )
+        self.log.info(
+            f"{execution_start_time} in UNIX miliseconds is {execution_start_time_unix_miliseconds}"
+        )
+        return execution_start_time_unix_miliseconds
+
+    def get_execution_stats(self,execution_window_tz):
         """Function to get the execution stats for task_id within a execution delta window
 
         Returns:
@@ -231,9 +275,7 @@ class TaskDependencySensor(BaseSensorOperator):
         external_dag_id = self.external_dag_id
         external_task_id = self.external_task_id
         execution_delta = self.execution_delta
-        execution_window_tz = (datetime.now() + execution_delta).strftime(
-            "%Y-%m-%dT%H:%M:%SZ"
-        )
+        execution_window_tz = self.get_execution_start_time_unix_milliseconds()
         headers = {
             "Content-Type": "application/json",
             "cache-control": "no-cache",
@@ -254,8 +296,9 @@ class TaskDependencySensor(BaseSensorOperator):
                 api_url
                 + "/api/v1/dags/"
                 + external_dag_id
-                + f"/dagRuns?execution_date_gte={execution_window_tz}"
+                + f"/dagRuns/scheduled_{execution_window_tz}"
             )
+
         log.info(f"URL to poke for dag runs {url}")
         response = requests.request("GET", url, headers=headers)
         if response.status_code == 401:
@@ -283,7 +326,8 @@ class TaskDependencySensor(BaseSensorOperator):
         )
         if af_version.startswith("1."):
             if dag_run_id >= execution_window_tz:
-                task_url = url + "/{dag_run_id}/tasks/{external_task_id}"
+                task_url = url + "/taskInstances/{external_task_id}"
+
             else:
                 log.info(
                     f"No airflow runs found for {external_dag_id} dag after {execution_window_tz}"
@@ -299,11 +343,11 @@ class TaskDependencySensor(BaseSensorOperator):
         task_state = task_response.json()["state"]
         return task_state
 
-    def poke(self, context):
+    def poke(self, context,execution_window_tz):
         log.info(f"executing poke.. {self._poke_count}")
         self._poke_count = self._poke_count + 1
         logging.info("Poking.. {0} round".format(str(self._poke_count)))
-        task_status = self.get_execution_stats()
+        task_status = self.get_execution_stats(execution_window_tz)
         log.info(f"task_status= {task_status}")
         return task_status
 
@@ -329,7 +373,7 @@ class TaskDependencySensor(BaseSensorOperator):
         )
         status = ""
         while status not in allowed_states:
-            status = self.poke(context)
+            status = self.poke(context,execution_window_tz)
             if status == "failed":
                 log.error(
                     f"Upstream dag {external_dag_id} failed at {external_task_id} task "
