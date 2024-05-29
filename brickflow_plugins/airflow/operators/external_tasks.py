@@ -250,10 +250,11 @@ class TaskDependencySensor(BaseSensorOperator):
         # Convert datetime object back to Unix timestamp in miliseconds
         execution_start_time_unix_miliseconds = int(
             execution_start_time.timestamp() * 1000
-        ).replace(tzinfo=timezone.utc)
+        )
 
+        execution_start_time_datetime = datetime.fromtimestamp(execution_start_time_unix_miliseconds / 1000).replace(tzinfo=timezone.utc)
 
-        execution_start_time_unix_miliseconds = execution_start_time_unix_miliseconds.strftime('%Y-%m-%dT%H:%M:%SZ')
+        execution_start_time_datetime = execution_start_time_datetime.strftime('%Y-%m-%dT%H:%M:%SZ')
 
 
         self.log.info(f"This workflow started at {start_time}")
@@ -261,9 +262,9 @@ class TaskDependencySensor(BaseSensorOperator):
             f"Going to check runs for job_id {self.dependency_job_id} from {execution_start_time} onwards"
         )
         self.log.info(
-            f"{execution_start_time} in UNIX miliseconds is {execution_start_time_unix_miliseconds}"
+            f"{execution_start_time} in UNIX miliseconds is {execution_start_time_datetime}"
         )
-        return execution_start_time_unix_miliseconds
+        return execution_start_time_datetime
 
     def get_execution_stats(self,execution_window_tz):
         """Function to get the execution stats for task_id within a execution delta window
