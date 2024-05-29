@@ -4,6 +4,7 @@ import logging
 from http import HTTPStatus
 from typing import Callable, Union
 from pydantic import SecretStr
+from brickflow.context import ctx
 
 import requests
 from airflow.models import Connection
