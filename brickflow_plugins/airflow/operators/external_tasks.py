@@ -3,6 +3,7 @@ import json
 import logging
 from http import HTTPStatus
 from typing import Callable, Union
+from pydantic import SecretStr
 
 import requests
 from airflow.models import Connection
