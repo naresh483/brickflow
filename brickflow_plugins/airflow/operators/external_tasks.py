@@ -275,7 +275,11 @@ class TaskDependencySensor(BaseSensorOperator):
         external_dag_id = self.external_dag_id
         external_task_id = self.external_task_id
         execution_delta = self.execution_delta
-        execution_window_tz = self.get_execution_start_time_unix_milliseconds()
+        execution_window_tz = "{{job.trigger.time.iso_date}}"
+
+        execution_start_time = execution_window_tz.replace(second=0, microsecond=0)
+        execution_start_time_str = execution_start_time.strftime('%Y-%m-%dT%H:%M:%S%z')
+
         headers = {
             "Content-Type": "application/json",
             "cache-control": "no-cache",
@@ -299,43 +303,38 @@ class TaskDependencySensor(BaseSensorOperator):
                     + f"/dagRuns/scheduled_{execution_window_tz}"
             )
 
-        log.info(f"URL to poke for dag runs {url}")
-        response = requests.request("GET", url, headers=headers)
-        if response.status_code == 401:
-            raise Exception(
-                f"No Runs found for {external_dag_id} dag after {execution_window_tz}, Please check upstream dag"
-            )
-        response.raise_for_status()
-        list_of_dictionaries = response.json()
-        list_of_dictionaries = response.json()["dag_runs"]
-        list_of_dictionaries = sorted(
-            list_of_dictionaries, key=lambda k: k["execution_date"], reverse=True
-        )
+        # log.info(f"URL to poke for dag runs {url}")
+        # response = requests.request("GET", url, headers=headers)
+        # if response.status_code == 401:
+        #     raise Exception(
+        #         f"No Runs found for {external_dag_id} dag after {execution_window_tz}, Please check upstream dag"
+        #     )
+        # response.raise_for_status()
+        # list_of_dictionaries = response.json()
+        # list_of_dictionaries = response.json()["dag_runs"]
+        # list_of_dictionaries = sorted(
+        #     list_of_dictionaries, key=lambda k: k["execution_date"], reverse=True
+        # )
+        # if af_version.startswith("1."):
+        #     # For airflow 1.X Execution date is needed to check the status of the task
+        #     dag_run_id = list_of_dictionaries[0]["execution_date"]
+        # else:
+        #     # For airflow 2.X or higher dag_run_id is needed to check the status of the task
+        #     dag_run_id = list_of_dictionaries[-1]["dag_run_id"]
+        #     if latest:
+        #         # Only picking the latest run id if latest flag is True
+        #         dag_run_id = list_of_dictionaries[0]["dag_run_id"]
+        # log.info(f"Latest run for the dag is with execution date of  {dag_run_id}")
+        # log.info(
+        #     f"Poking {external_dag_id} dag for {dag_run_id} run_id status as latest flag is set to {latest} "
+        # )
         if af_version.startswith("1."):
-            # For airflow 1.X Execution date is needed to check the status of the task
-            dag_run_id = list_of_dictionaries[0]["execution_date"]
-        else:
-            # For airflow 2.X or higher dag_run_id is needed to check the status of the task
-            dag_run_id = list_of_dictionaries[-1]["dag_run_id"]
-            if latest:
-                # Only picking the latest run id if latest flag is True
-                dag_run_id = list_of_dictionaries[0]["dag_run_id"]
-        log.info(f"Latest run for the dag is with execution date of  {dag_run_id}")
-        log.info(
-            f"Poking {external_dag_id} dag for {dag_run_id} run_id status as latest flag is set to {latest} "
-        )
-        if af_version.startswith("1."):
-            if dag_run_id >= execution_window_tz:
-                task_url = url + "/taskInstances/{external_task_id}"
+            task_url = url + "/taskInstances/{external_task_id}"
 
-            else:
-                log.info(
-                    f"No airflow runs found for {external_dag_id} dag after {execution_window_tz}"
-                )
         else:
             task_url = (
                     url[: url.rfind("/")]
-                    + f"/dagRuns/{dag_run_id}/taskInstances/{external_task_id}"
+                    + f"/dagRuns/scheduled_{execution_window_tz}/taskInstances/{external_task_id}"
             )
         log.info(f"Pinging airflow API {task_url} for task status ")
         task_response = requests.request("GET", task_url, headers=headers)
