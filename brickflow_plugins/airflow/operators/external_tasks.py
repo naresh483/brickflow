@@ -256,11 +256,7 @@ class TaskDependencySensor(BaseSensorOperator):
 
         execution_start_time_datetime = execution_start_time_datetime.strftime('%Y-%m-%dT%H:%M:%SZ')
 
-
         self.log.info(f"This workflow started at {start_time}")
-        self.log.info(
-            f"Going to check runs for job_id {self.dependency_job_id} from {execution_start_time} onwards"
-        )
         self.log.info(
             f"{execution_start_time} in UNIX miliseconds is {execution_start_time_datetime}"
         )
