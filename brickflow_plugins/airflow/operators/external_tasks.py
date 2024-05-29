@@ -57,11 +57,11 @@ class AirflowClusterAuth(abc.ABC):
 
 class AirflowProxyOktaClusterAuth(AirflowClusterAuth):
     def __init__(
-        self,
-        oauth2_conn_id: str,
-        airflow_cluster_url: str,
-        airflow_version: str = None,
-        get_airflow_version_callback: Callable[[str, str], str] = None,
+            self,
+            oauth2_conn_id: str,
+            airflow_cluster_url: str,
+            airflow_version: str = None,
+            get_airflow_version_callback: Callable[[str, str], str] = None,
     ):
         self._airflow_version = airflow_version
         self._get_airflow_version_callback = get_airflow_version_callback
@@ -93,11 +93,11 @@ class AirflowProxyOktaClusterAuth(AirflowClusterAuth):
         client_secret = self.get_okta_client_secret()
 
         payload = (
-            "client_id="
-            + client_id
-            + "&client_secret="
-            + client_secret
-            + "&grant_type=client_credentials"
+                "client_id="
+                + client_id
+                + "&client_secret="
+                + client_secret
+                + "&grant_type=client_credentials"
         )
         headers = {
             "Content-Type": "application/x-www-form-urlencoded",
@@ -105,8 +105,8 @@ class AirflowProxyOktaClusterAuth(AirflowClusterAuth):
         }
         response = requests.post(okta_url, data=payload, headers=headers, timeout=600)
         if (
-            response.status_code < HTTPStatus.OK
-            or response.status_code > HTTPStatus.PARTIAL_CONTENT
+                response.status_code < HTTPStatus.OK
+                or response.status_code > HTTPStatus.PARTIAL_CONTENT
         ):
             log.error(
                 "Failed request to Okta for JWT status_code={} response={} client_id={}".format(
@@ -134,7 +134,7 @@ class AirflowScheduleHelper(DagSchedule):
         self._airflow_auth = airflow_auth
 
     def get_task_run_status(
-        self, wf_id: str, task_id: str, latest=False, run_date=None, **kwargs
+            self, wf_id: str, task_id: str, latest=False, run_date=None, **kwargs
     ):
         token_data = self._airflow_auth.get_access_token()
         api_url = self._airflow_auth.get_airflow_api_url()
@@ -154,24 +154,24 @@ class AirflowScheduleHelper(DagSchedule):
         if version_nr.startswith("1."):
             log.info("this is 1.x cluster")
             url = (
-                api_url
-                + "/api/experimental"
-                + "/dags/"
-                + dag_id
-                + "/dag_runs/"
-                + run_date
-                + "/tasks/"
-                + task_id
+                    api_url
+                    + "/api/experimental"
+                    + "/dags/"
+                    + dag_id
+                    + "/dag_runs/"
+                    + run_date
+                    + "/tasks/"
+                    + task_id
             )
         else:
             url = (
-                api_url
-                + "/api/v1/dags/"
-                + dag_id
-                + "/dagRuns/scheduled__"
-                + run_date
-                + "/taskInstances/"
-                + task_id
+                    api_url
+                    + "/api/v1/dags/"
+                    + dag_id
+                    + "/dagRuns/scheduled__"
+                    + run_date
+                    + "/taskInstances/"
+                    + task_id
             )
 
         log.info(f"url= {url.replace(' ', '')}")
@@ -193,19 +193,19 @@ class AirflowScheduleHelper(DagSchedule):
 
 class TaskDependencySensor(BaseSensorOperator):
     def __init__(
-        self,
-        external_dag_id,
-        external_task_id,
-        databricks_host: str,
-        databricks_token: Union[str, SecretStr],
-        airflow_auth: AirflowClusterAuth,
-        allowed_states=None,
-        execution_delta=None,
-        execution_delta_json=None,
-        latest=False,
-        poke_interval=60,
-        *args,
-        **kwargs,
+            self,
+            external_dag_id,
+            external_task_id,
+            databricks_host: str,
+            databricks_token: Union[str, SecretStr],
+            airflow_auth: AirflowClusterAuth,
+            allowed_states=None,
+            execution_delta=None,
+            execution_delta_json=None,
+            latest=False,
+            poke_interval=60,
+            *args,
+            **kwargs,
     ):
         super(TaskDependencySensor, self).__init__(*args, **kwargs)
         self._airflow_auth = airflow_auth
@@ -252,9 +252,10 @@ class TaskDependencySensor(BaseSensorOperator):
             execution_start_time.timestamp() * 1000
         )
 
-        date_format = '%Y-%m-%dT%H:%M:%SZ'
-        execution_start_time_unix_miliseconds = datetime.strptime(execution_start_time_unix_miliseconds, date_format).replace(tzinfo=timezone.utc)
 
+        execution_start_time_unix_miliseconds = execution_start_time_unix_miliseconds.strftime('%Y-%m-%dT%H:%M:%SZ')
+
+        
         self.log.info(f"This workflow started at {start_time}")
         self.log.info(
             f"Going to check runs for job_id {self.dependency_job_id} from {execution_start_time} onwards"
@@ -286,19 +287,19 @@ class TaskDependencySensor(BaseSensorOperator):
         if af_version.startswith("1."):
             log.info("this is 1.x cluster")
             url = (
-                api_url
-                + "/api/experimental"
-                + "/dags/"
-                + external_dag_id
-                + "/dag_runs/"
+                    api_url
+                    + "/api/experimental"
+                    + "/dags/"
+                    + external_dag_id
+                    + "/dag_runs/"
             )
         else:
             # Airflow API for 2.X version limits 100 records, so only picking runs within the execution window provided
             url = (
-                api_url
-                + "/api/v1/dags/"
-                + external_dag_id
-                + f"/dagRuns/scheduled_{execution_window_tz}"
+                    api_url
+                    + "/api/v1/dags/"
+                    + external_dag_id
+                    + f"/dagRuns/scheduled_{execution_window_tz}"
             )
 
         log.info(f"URL to poke for dag runs {url}")
@@ -336,8 +337,8 @@ class TaskDependencySensor(BaseSensorOperator):
                 )
         else:
             task_url = (
-                url[: url.rfind("/")]
-                + f"/dagRuns/{dag_run_id}/taskInstances/{external_task_id}"
+                    url[: url.rfind("/")]
+                    + f"/dagRuns/{dag_run_id}/taskInstances/{external_task_id}"
             )
         log.info(f"Pinging airflow API {task_url} for task status ")
         task_response = requests.request("GET", task_url, headers=headers)
@@ -388,13 +389,13 @@ class TaskDependencySensor(BaseSensorOperator):
 
 class AutosysSensor(BaseSensorOperator):
     def __init__(
-        self,
-        url: str,
-        job_name: str,
-        poke_interval: int,
-        time_delta: Union[timedelta, dict] = {"days": 0},
-        *args,
-        **kwargs,
+            self,
+            url: str,
+            job_name: str,
+            poke_interval: int,
+            time_delta: Union[timedelta, dict] = {"days": 0},
+            *args,
+            **kwargs,
     ):
         super().__init__(*args, **kwargs)
         self.url = url
@@ -447,9 +448,9 @@ class AutosysSensor(BaseSensorOperator):
             run_timestamp = execution_timestamp - time_delta
 
             if (
-                "SU" in status
-                and last_end_timestamp
-                and last_end_timestamp >= run_timestamp
+                    "SU" in status
+                    and last_end_timestamp
+                    and last_end_timestamp >= run_timestamp
             ):
                 logging.info(
                     f"Last End: {last_end_timestamp}, Run Timestamp: {run_timestamp}"
