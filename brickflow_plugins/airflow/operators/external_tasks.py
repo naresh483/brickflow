@@ -245,7 +245,7 @@ class TaskDependencySensor(BaseSensorOperator):
 
         # Convert Unix timestamp in milliseconds to datetime object to easily incorporate the delta
         start_time = datetime.fromtimestamp(run.start_time / 1000)
-        execution_start_time = start_time - self.delta
+        execution_start_time = start_time - self.execution_delta
         execution_start_time = execution_start_time.replace(second=0, microsecond=0)
         # Convert datetime object back to Unix timestamp in miliseconds
         execution_start_time_unix_miliseconds = int(
