@@ -250,12 +250,12 @@ class TaskDependencySensor(BaseSensorOperator):
         # Convert datetime object back to Unix timestamp in miliseconds
         execution_start_time_unix_miliseconds = int(
             execution_start_time.timestamp() * 1000
-        )
+        ).replace(tzinfo=timezone.utc)
 
 
         execution_start_time_unix_miliseconds = execution_start_time_unix_miliseconds.strftime('%Y-%m-%dT%H:%M:%SZ')
 
-        
+
         self.log.info(f"This workflow started at {start_time}")
         self.log.info(
             f"Going to check runs for job_id {self.dependency_job_id} from {execution_start_time} onwards"
