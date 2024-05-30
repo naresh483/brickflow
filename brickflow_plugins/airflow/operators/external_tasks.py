@@ -197,6 +197,7 @@ class TaskDependencySensor(BaseSensorOperator):
             external_dag_id,
             external_task_id,
             databricks_host: str,
+            databricks_token: Union[str, SecretStr],
             airflow_auth: AirflowClusterAuth,
             allowed_states=None,
             execution_delta=None,
@@ -214,11 +215,11 @@ class TaskDependencySensor(BaseSensorOperator):
                 "Only one of `execution_date` or `execution_delta_json` maybe provided to Sensor; not more than one."
             )
         self.databricks_host = databricks_host
-        # self.databricks_token = (
-        #     databricks_token
-        #     if isinstance(databricks_token, SecretStr)
-        #     else SecretStr(databricks_token)
-        # )
+        self.databricks_token = (
+            databricks_token
+            if isinstance(databricks_token, SecretStr)
+            else SecretStr(databricks_token)
+        )
         self.external_dag_id = external_dag_id
         self.external_task_id = external_task_id
         self.allowed_states = allowed_states
@@ -227,10 +228,8 @@ class TaskDependencySensor(BaseSensorOperator):
         self.latest = latest
         self.poke_interval = poke_interval
         self._poke_count = 0
-        dbutils = DBUtils(spark)
-        token = dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiToken().get()
         self._workspace_obj = WorkspaceClient(
-            host=self.databricks_host, token=token
+            host=self.databricks_host, token=self.databricks_token.get_secret_value()
         )
 
     def get_execution_start_time_unix_milliseconds(self) -> int:
@@ -361,7 +360,9 @@ class TaskDependencySensor(BaseSensorOperator):
         external_dag_id = self.external_dag_id
         external_task_id = self.external_task_id
         execution_delta = self.execution_delta
-        execution_window_tz = (execution_start_time + execution_delta).strftime("%Y-%m-%dT%H:%M:%S%z") + "+00:00"
+        execution_window_tz = (execution_start_time + execution_delta).strftime(
+            "%Y-%m-%dT%H:%M:%S%z"
+        ) + "+00:00"
         log.info(
             f"Executing TaskDependency Sensor Operator to check successful run for {external_dag_id} dag, task {external_task_id} after {execution_window_tz} "
         )
