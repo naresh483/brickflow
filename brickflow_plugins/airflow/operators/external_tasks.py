@@ -337,7 +337,7 @@ class TaskDependencySensor(BaseSensorOperator):
         else:
             task_url = (
                     url[: url.rfind("/")]
-                    + f"/dagRuns/scheduled_{execution_window_tz}/taskInstances/{external_task_id}"
+                    + f"/scheduled__{execution_window_tz}/taskInstances/{external_task_id}"
             )
         log.info(f"Pinging airflow API {task_url} for task status ")
         task_response = requests.request("GET", task_url, headers=headers)
