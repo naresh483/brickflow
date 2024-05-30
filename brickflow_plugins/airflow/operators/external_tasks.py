@@ -214,11 +214,11 @@ class TaskDependencySensor(BaseSensorOperator):
                 "Only one of `execution_date` or `execution_delta_json` maybe provided to Sensor; not more than one."
             )
         self.databricks_host = databricks_host
-        self.databricks_token = (
-            databricks_token
-            if isinstance(databricks_token, SecretStr)
-            else SecretStr(databricks_token)
-        )
+        # self.databricks_token = (
+        #     databricks_token
+        #     if isinstance(databricks_token, SecretStr)
+        #     else SecretStr(databricks_token)
+        # )
         self.external_dag_id = external_dag_id
         self.external_task_id = external_task_id
         self.allowed_states = allowed_states
