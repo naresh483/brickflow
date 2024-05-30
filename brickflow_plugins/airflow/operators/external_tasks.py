@@ -12,7 +12,7 @@ from airflow.sensors.base import BaseSensorOperator
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 from requests import HTTPError
-
+from pyspark.dbutils import DBUtils
 from datetime import datetime, timedelta
 from dateutil.parser import parse  # type: ignore[import-untyped]
 import time
@@ -228,8 +228,10 @@ class TaskDependencySensor(BaseSensorOperator):
         self.latest = latest
         self.poke_interval = poke_interval
         self._poke_count = 0
+        dbutils = DBUtils(spark)
+        default_token = dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiToken().get()
         self._workspace_obj = WorkspaceClient(
-            host=self.databricks_host, token=self.databricks_token.get_secret_value()
+            host=self.databricks_host, token=default_token
         )
 
     def get_execution_start_time_unix_milliseconds(self) -> int:
