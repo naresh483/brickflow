@@ -197,7 +197,6 @@ class TaskDependencySensor(BaseSensorOperator):
             external_dag_id,
             external_task_id,
             databricks_host: str,
-            databricks_token: Union[str, SecretStr],
             airflow_auth: AirflowClusterAuth,
             allowed_states=None,
             execution_delta=None,
