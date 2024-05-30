@@ -10,13 +10,11 @@ from airflow.sensors.base import BaseSensorOperator
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 from requests import HTTPError
-from brickflow.context import ctx
 from datetime import datetime, timedelta
 from dateutil.parser import parse  # type: ignore[import-untyped]
 import time
 import pytz
 from brickflow_plugins import log
-from databricks.sdk import WorkspaceClient
 
 
 class DagSchedule:
