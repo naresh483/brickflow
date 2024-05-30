@@ -218,39 +218,7 @@ class TaskDependencySensor(BaseSensorOperator):
         self.latest = latest
         self.poke_interval = poke_interval
         self._poke_count = 0
-        # self._workspace_obj = WorkspaceClient(
-        #     host=self.databricks_host, token=self.databricks_token.get_secret_value()
-        # )
-
-    # def get_execution_start_time_unix_milliseconds(self) -> int:
-    # 
-    #     run_id = ctx.dbutils_widget_get_or_else("brickflow_parent_run_id", None)
-    #     if run_id is None:
-    #         raise TaskDependencySensor(
-    #             "run_id is empty, brickflow_parent_run_id parameter is not found "
-    #             "or no value present"
-    #         )
-    # 
-    #     run = self._workspace_obj.jobs.get_run(run_id=run_id)
-    # 
-    #     # Convert Unix timestamp in milliseconds to datetime object to easily incorporate the delta
-    #     start_time = datetime.fromtimestamp(run.start_time / 1000)
-    #     execution_start_time = start_time - self.delta
-    # 
-    #     # Convert datetime object back to Unix timestamp in miliseconds
-    #     execution_start_time_unix_miliseconds = int(
-    #         execution_start_time.timestamp() * 1000
-    #     )
-    # 
-    #     self.log.info(f"This workflow started at {start_time}")
-    #     self.log.info(
-    #         f"Going to check runs for job_id {self.dependency_job_id} from {execution_start_time} onwards"
-    #     )
-    #     self.log.info(
-    #         f"{execution_start_time} in UNIX miliseconds is {execution_start_time_unix_miliseconds}"
-    #     )
-    #     return execution_start_time_unix_miliseconds
-
+       
     def get_execution_stats(self,execution_window_tz):
         """Function to get the execution stats for task_id within a execution delta window
 
