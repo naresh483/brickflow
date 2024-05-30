@@ -229,9 +229,9 @@ class TaskDependencySensor(BaseSensorOperator):
         self.poke_interval = poke_interval
         self._poke_count = 0
         dbutils = DBUtils(spark)
-        default_token = dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiToken().get()
+        token = dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiToken().get()
         self._workspace_obj = WorkspaceClient(
-            host=self.databricks_host, token=default_token
+            host=self.databricks_host, token=token
         )
 
     def get_execution_start_time_unix_milliseconds(self) -> int:
@@ -275,15 +275,7 @@ class TaskDependencySensor(BaseSensorOperator):
         af_version = self._airflow_auth.get_version()
         external_dag_id = self.external_dag_id
         external_task_id = self.external_task_id
-        execution_delta = self.execution_delta
         execution_window_tz = execution_window_tz
-        # log.info(f"brickflow start date {execution_window_tz}")
-        # execution_start_time = datetime.fromisoformat(execution_window_tz)
-        #
-        # execution_start_time = execution_start_time.replace(second=0, microsecond=0)
-        # execution_start_time_str = execution_start_time.strftime('%Y-%m-%dT%H:%M:%S%z')
-
-
 
         headers = {
             "Content-Type": "application/json",
@@ -370,9 +362,7 @@ class TaskDependencySensor(BaseSensorOperator):
         external_dag_id = self.external_dag_id
         external_task_id = self.external_task_id
         execution_delta = self.execution_delta
-        execution_window_tz = (execution_start_time + execution_delta).strftime(
-            "%Y-%m-%dT%H:%M:%S%z"
-        ) + "+00:00"
+        execution_window_tz = (execution_start_time + execution_delta).strftime("%Y-%m-%dT%H:%M:%S%z") + "+00:00"
         log.info(
             f"Executing TaskDependency Sensor Operator to check successful run for {external_dag_id} dag, task {external_task_id} after {execution_window_tz} "
         )
