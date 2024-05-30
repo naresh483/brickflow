@@ -370,7 +370,7 @@ class TaskDependencySensor(BaseSensorOperator):
         execution_delta = self.execution_delta
         execution_window_tz = (execution_start_time + execution_delta).strftime(
             "%Y-%m-%dT%H:%M:%S%z"
-        )
+        ) + "+00:00"
         log.info(
             f"Executing TaskDependency Sensor Operator to check successful run for {external_dag_id} dag, task {external_task_id} after {execution_window_tz} "
         )
