@@ -245,8 +245,7 @@ class TaskDependencySensor(BaseSensorOperator):
 
         # Convert Unix timestamp in milliseconds to datetime object to easily incorporate the delta
         start_time = datetime.fromtimestamp(run.start_time / 1000)
-        execution_start_time = start_time - self.execution_delta
-        execution_start_time = execution_start_time.replace(second=0, microsecond=0)
+        execution_start_time = start_time.replace(second=0, microsecond=0)
         # Convert datetime object back to Unix timestamp in miliseconds
         execution_start_time_unix_miliseconds = int(
             execution_start_time.timestamp() * 1000
@@ -256,7 +255,7 @@ class TaskDependencySensor(BaseSensorOperator):
 
         execution_start_time_datetime = execution_start_time_datetime.strftime('%Y-%m-%dT%H:%M:%SZ')
 
-        self.log.info(f"This workflow started at {start_time}")
+        self.log.info(f"This workflow started at {execution_start_time}")
         self.log.info(
             f"{execution_start_time} in UNIX miliseconds is {execution_start_time_datetime}"
         )
