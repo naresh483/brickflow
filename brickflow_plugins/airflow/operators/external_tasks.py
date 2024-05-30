@@ -363,12 +363,13 @@ class TaskDependencySensor(BaseSensorOperator):
         Raises:
             Exception: If Upstream Dag is Failed
         """
+        execution_start_time = datetime.strptime(self.get_execution_start_time_unix_milliseconds(), "%Y-%m-%dT%H:%M:%SZ")
         self.okta_token = self._airflow_auth.get_access_token()
         allowed_states = self.allowed_states
         external_dag_id = self.external_dag_id
         external_task_id = self.external_task_id
         execution_delta = self.execution_delta
-        execution_window_tz = (self.get_execution_start_time_unix_milliseconds() + execution_delta).strftime(
+        execution_window_tz = (execution_start_time + execution_delta).strftime(
             "%Y-%m-%dT%H:%M:%SZ"
         )
         log.info(
