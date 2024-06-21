@@ -1,6 +1,7 @@
 from typing import Optional
 import datetime
 import pendulum
+import re
 
 try:
     from airflow import macros
@@ -24,10 +25,16 @@ from brickflow_plugins.airflow.operators import get_modifier_chain
 from brickflow_plugins.secrets import BrickflowSecretsBackend
 
 
-def epoch_to_pendulum_datetime(epoch_str: Optional[str]):
-    if epoch_str is None:
+def epoch_to_pendulum_datetime(time: Optional[str]):
+    if time is None:
         return None
-    return pendulum.instance(datetime.datetime.fromtimestamp(int(epoch_str) / 1000))
+    if isinstance(time, str):
+        if re.match(r"^-?\d+$", time):  # Check if the string is a valid integer
+            time = int(time)
+            return pendulum.from_timestamp(time / 1000)
+        else:
+            return pendulum.parse(time)
+    return pendulum.from_timestamp(time / 1000)
 
 
 class AirflowOperatorBrickflowTaskPluginImpl(BrickflowTaskPluginSpec):
@@ -55,7 +62,7 @@ class AirflowOperatorBrickflowTaskPluginImpl(BrickflowTaskPluginSpec):
         if hasattr(_operator, "log"):
             # overwrite the operator logger if it has one to the brickflow logger
             setattr(_operator, "_log", ctx.log)
-
+        log.info("Handling both epoch and timestamp string", epoch_to_pendulum_datetime(ctx.start_time(debug=None)))
         context: Context = get_task_context(
             task.task_id,
             _operator,
