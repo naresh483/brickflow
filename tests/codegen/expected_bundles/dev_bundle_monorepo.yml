@@ -9,15 +9,11 @@ targets:
           notification_settings: null
           webhook_notifications: null
           timeout_seconds: null
-          health:
+          health: 
             rules:
               - metric: "RUN_DURATION_SECONDS"
                 op: "GREATER_THAN"
                 value: 7200.0
-          trigger:
-            pause_status: UNPAUSED
-            file_arrival:
-              url: <my_url>
           git_source:
             git_commit: a
             git_provider: github
@@ -60,17 +56,17 @@ targets:
                   all_tasks3: "123"
                   brickflow_env: dev
                   brickflow_internal_only_run_tasks: ""
-                  brickflow_internal_task_name: "{{task_key}}"
+                  brickflow_internal_task_name: "{{task.name}}"
                   brickflow_internal_workflow_name: test
                   brickflow_internal_workflow_prefix: ""
                   brickflow_internal_workflow_suffix: ""
-                  brickflow_job_id: "{{job_id}}"
-                  brickflow_parent_run_id: "{{parent_run_id}}"
-                  brickflow_run_id: "{{run_id}}"
-                  brickflow_start_date: "{{start_date}}"
-                  brickflow_start_time: "{{start_time}}"
-                  brickflow_task_key: "{{task_key}}"
-                  brickflow_task_retry_count: "{{task_retry_count}}"
+                  brickflow_job_id: "{{job.id}}"
+                  brickflow_parent_run_id: "{{job.run_id}}"
+                  brickflow_run_id: "{{task.run_id}}"
+                  brickflow_start_date: "{{job.trigger.time.iso_date}}"
+                  brickflow_start_time: "{{job.trigger.time.iso_datetime}}"
+                  brickflow_task_key: "{{task.name}}"
+                  brickflow_task_retry_count: "{{task.execution_count}}"
                 notebook_path: some/path/to/root/test_databricks_bundle.py
                 source: GIT
               retry_on_timeout: null
@@ -135,17 +131,17 @@ targets:
                   all_tasks3: "123"
                   brickflow_env: dev
                   brickflow_internal_only_run_tasks: ""
-                  brickflow_internal_task_name: "{{task_key}}"
+                  brickflow_internal_task_name: "{{task.name}}"
                   brickflow_internal_workflow_name: test
                   brickflow_internal_workflow_prefix: ""
                   brickflow_internal_workflow_suffix: ""
-                  brickflow_job_id: "{{job_id}}"
-                  brickflow_parent_run_id: "{{parent_run_id}}"
-                  brickflow_run_id: "{{run_id}}"
-                  brickflow_start_date: "{{start_date}}"
-                  brickflow_start_time: "{{start_time}}"
-                  brickflow_task_key: "{{task_key}}"
-                  brickflow_task_retry_count: "{{task_retry_count}}"
+                  brickflow_job_id: "{{job.id}}"
+                  brickflow_parent_run_id: "{{job.run_id}}"
+                  brickflow_run_id: "{{task.run_id}}"
+                  brickflow_start_date: "{{job.trigger.time.iso_date}}"
+                  brickflow_start_time: "{{job.trigger.time.iso_datetime}}"
+                  brickflow_task_key: "{{task.name}}"
+                  brickflow_task_retry_count: "{{task.execution_count}}"
                   test: var
                 notebook_path: some/path/to/root/test_databricks_bundle.py
                 source: GIT
@@ -165,17 +161,17 @@ targets:
                   all_tasks3: "123"
                   brickflow_env: dev
                   brickflow_internal_only_run_tasks: ""
-                  brickflow_internal_task_name: "{{task_key}}"
+                  brickflow_internal_task_name: "{{task.name}}"
                   brickflow_internal_workflow_name: test
                   brickflow_internal_workflow_prefix: ""
                   brickflow_internal_workflow_suffix: ""
-                  brickflow_job_id: "{{job_id}}"
-                  brickflow_parent_run_id: "{{parent_run_id}}"
-                  brickflow_run_id: "{{run_id}}"
-                  brickflow_start_date: "{{start_date}}"
-                  brickflow_start_time: "{{start_time}}"
-                  brickflow_task_key: "{{task_key}}"
-                  brickflow_task_retry_count: "{{task_retry_count}}"
+                  brickflow_job_id: "{{job.id}}"
+                  brickflow_parent_run_id: "{{job.run_id}}"
+                  brickflow_run_id: "{{task.run_id}}"
+                  brickflow_start_date: "{{job.trigger.time.iso_date}}"
+                  brickflow_start_time: "{{job.trigger.time.iso_datetime}}"
+                  brickflow_task_key: "{{task.name}}"
+                  brickflow_task_retry_count: "{{task.execution_count}}"
                 notebook_path: some/path/to/root/test_databricks_bundle.py
                 source: GIT
               retry_on_timeout: null
@@ -194,17 +190,17 @@ targets:
                   all_tasks3: "123"
                   brickflow_env: dev
                   brickflow_internal_only_run_tasks: ""
-                  brickflow_internal_task_name: "{{task_key}}"
+                  brickflow_internal_task_name: "{{task.name}}"
                   brickflow_internal_workflow_name: test
                   brickflow_internal_workflow_prefix: ""
                   brickflow_internal_workflow_suffix: ""
-                  brickflow_job_id: "{{job_id}}"
-                  brickflow_parent_run_id: "{{parent_run_id}}"
-                  brickflow_run_id: "{{run_id}}"
-                  brickflow_start_date: "{{start_date}}"
-                  brickflow_start_time: "{{start_time}}"
-                  brickflow_task_key: "{{task_key}}"
-                  brickflow_task_retry_count: "{{task_retry_count}}"
+                  brickflow_job_id: "{{job.id}}"
+                  brickflow_parent_run_id: "{{job.run_id}}"
+                  brickflow_run_id: "{{task.run_id}}"
+                  brickflow_start_date: "{{job.trigger.time.iso_date}}"
+                  brickflow_start_time: "{{job.trigger.time.iso_datetime}}"
+                  brickflow_task_key: "{{task.name}}"
+                  brickflow_task_retry_count: "{{task.execution_count}}"
                 notebook_path: some/path/to/root/test_databricks_bundle.py
                 source: GIT
               retry_on_timeout: null
@@ -223,17 +219,17 @@ targets:
                   all_tasks3: "123"
                   brickflow_env: dev
                   brickflow_internal_only_run_tasks: ""
-                  brickflow_internal_task_name: "{{task_key}}"
+                  brickflow_internal_task_name: "{{task.name}}"
                   brickflow_internal_workflow_name: test
                   brickflow_internal_workflow_prefix: ""
                   brickflow_internal_workflow_suffix: ""
-                  brickflow_job_id: "{{job_id}}"
-                  brickflow_parent_run_id: "{{parent_run_id}}"
-                  brickflow_run_id: "{{run_id}}"
-                  brickflow_start_date: "{{start_date}}"
-                  brickflow_start_time: "{{start_time}}"
-                  brickflow_task_key: "{{task_key}}"
-                  brickflow_task_retry_count: "{{task_retry_count}}"
+                  brickflow_job_id: "{{job.id}}"
+                  brickflow_parent_run_id: "{{job.run_id}}"
+                  brickflow_run_id: "{{task.run_id}}"
+                  brickflow_start_date: "{{job.trigger.time.iso_date}}"
+                  brickflow_start_time: "{{job.trigger.time.iso_datetime}}"
+                  brickflow_task_key: "{{task.name}}"
+                  brickflow_task_retry_count: "{{task.execution_count}}"
                 notebook_path: some/path/to/root/test_databricks_bundle.py
                 source: GIT
               retry_on_timeout: null
@@ -252,17 +248,17 @@ targets:
                   all_tasks3: "123"
                   brickflow_env: dev
                   brickflow_internal_only_run_tasks: ""
-                  brickflow_internal_task_name: "{{task_key}}"
+                  brickflow_internal_task_name: "{{task.name}}"
                   brickflow_internal_workflow_name: test
                   brickflow_internal_workflow_prefix: ""
                   brickflow_internal_workflow_suffix: ""
-                  brickflow_job_id: "{{job_id}}"
-                  brickflow_parent_run_id: "{{parent_run_id}}"
-                  brickflow_run_id: "{{run_id}}"
-                  brickflow_start_date: "{{start_date}}"
-                  brickflow_start_time: "{{start_time}}"
-                  brickflow_task_key: "{{task_key}}"
-                  brickflow_task_retry_count: "{{task_retry_count}}"
+                  brickflow_job_id: "{{job.id}}"
+                  brickflow_parent_run_id: "{{job.run_id}}"
+                  brickflow_run_id: "{{task.run_id}}"
+                  brickflow_start_date: "{{job.trigger.time.iso_date}}"
+                  brickflow_start_time: "{{job.trigger.time.iso_datetime}}"
+                  brickflow_task_key: "{{task.name}}"
+                  brickflow_task_retry_count: "{{task.execution_count}}"
                 notebook_path: some/path/to/root/test_databricks_bundle.py
                 source: GIT
               retry_on_timeout: null
@@ -281,17 +277,17 @@ targets:
                   all_tasks3: "123"
                   brickflow_env: dev
                   brickflow_internal_only_run_tasks: ""
-                  brickflow_internal_task_name: "{{task_key}}"
+                  brickflow_internal_task_name: "{{task.name}}"
                   brickflow_internal_workflow_name: test
                   brickflow_internal_workflow_prefix: ""
                   brickflow_internal_workflow_suffix: ""
-                  brickflow_job_id: "{{job_id}}"
-                  brickflow_parent_run_id: "{{parent_run_id}}"
-                  brickflow_run_id: "{{run_id}}"
-                  brickflow_start_date: "{{start_date}}"
-                  brickflow_start_time: "{{start_time}}"
-                  brickflow_task_key: "{{task_key}}"
-                  brickflow_task_retry_count: "{{task_retry_count}}"
+                  brickflow_job_id: "{{job.id}}"
+                  brickflow_parent_run_id: "{{job.run_id}}"
+                  brickflow_run_id: "{{task.run_id}}"
+                  brickflow_start_date: "{{job.trigger.time.iso_date}}"
+                  brickflow_start_time: "{{job.trigger.time.iso_datetime}}"
+                  brickflow_task_key: "{{task.name}}"
+                  brickflow_task_retry_count: "{{task.execution_count}}"
                   test: var
                 notebook_path: some/path/to/root/test_databricks_bundle.py
                 source: GIT
@@ -310,17 +306,17 @@ targets:
                   all_tasks3: "123"
                   brickflow_env: dev
                   brickflow_internal_only_run_tasks: ""
-                  brickflow_internal_task_name: "{{task_key}}"
+                  brickflow_internal_task_name: "{{task.name}}"
                   brickflow_internal_workflow_name: test
                   brickflow_internal_workflow_prefix: ""
                   brickflow_internal_workflow_suffix: ""
-                  brickflow_job_id: "{{job_id}}"
-                  brickflow_parent_run_id: "{{parent_run_id}}"
-                  brickflow_run_id: "{{run_id}}"
-                  brickflow_start_date: "{{start_date}}"
-                  brickflow_start_time: "{{start_time}}"
-                  brickflow_task_key: "{{task_key}}"
-                  brickflow_task_retry_count: "{{task_retry_count}}"
+                  brickflow_job_id: "{{job.id}}"
+                  brickflow_parent_run_id: "{{job.run_id}}"
+                  brickflow_run_id: "{{task.run_id}}"
+                  brickflow_start_date: "{{job.trigger.time.iso_date}}"
+                  brickflow_start_time: "{{job.trigger.time.iso_datetime}}"
+                  brickflow_task_key: "{{task.name}}"
+                  brickflow_task_retry_count: "{{task.execution_count}}"
                 notebook_path: some/path/to/root/test_databricks_bundle.py
                 source: GIT
               retry_on_timeout: null
@@ -380,18 +376,6 @@ targets:
                   query_id: "your_sql_query_id"
                 warehouse_id: "your_warehouse_id"
               task_key: "sample_sql_task_query"
-              timeout_seconds: null
-            - depends_on:
-              - task_key: "sample_sql_task_query"
-              email_notifications: {}
-              max_retries: null
-              min_retry_interval_millis: null
-              retry_on_timeout: null
-              condition_task:
-                left: "1"
-                op: "EQUAL_TO"
-                right: "2"
-              task_key: "condtion_task_test"
               timeout_seconds: null
       pipelines:
         test_hello_world:
