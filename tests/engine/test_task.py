@@ -6,11 +6,7 @@ from pydantic import SecretStr
 import pytest
 from deepdiff import DeepDiff
 from brickflow.engine.utils import get_job_id
-from brickflow import (
-    BrickflowProjectDeploymentSettings,
-    SparkJarTask,
-    IfElseConditionTask,
-)
+from brickflow import BrickflowProjectDeploymentSettings, SparkJarTask
 from brickflow.context import (
     ctx,
     BRANCH_SKIP_EXCEPT,
@@ -49,13 +45,13 @@ from tests.engine.sample_workflow import (
 
 class TestTask:
     builtin_task_params = {
-        "brickflow_job_id": "{{job_id}}",
-        "brickflow_run_id": "{{run_id}}",
-        "brickflow_start_date": "{{start_date}}",
-        "brickflow_start_time": "{{start_time}}",
-        "brickflow_task_retry_count": "{{task_retry_count}}",
-        "brickflow_parent_run_id": "{{parent_run_id}}",
-        "brickflow_task_key": "{{task_key}}",
+        "brickflow_job_id": "{{job.id}}",
+        "brickflow_run_id": "{{task.run_id}}",
+        "brickflow_start_date": "{{job.trigger.time.iso_date}}",
+        "brickflow_start_time": "{{job.trigger.time.iso_datetime}}",
+        "brickflow_task_retry_count": "{{task.execution_count}}",
+        "brickflow_parent_run_id": "{{job.run_id}}",
+        "brickflow_task_key": "{{task.name}}",
     }
 
     def test_builtin_notebook_params(self):
@@ -67,7 +63,7 @@ class TestTask:
     def test_builtin_default_params(self):
         assert wf.get_task(task_function.__name__).brickflow_default_params == {
             "brickflow_internal_workflow_name": wf.name,
-            "brickflow_internal_task_name": "{{task_key}}",
+            "brickflow_internal_task_name": "{{task.name}}",
             "brickflow_internal_only_run_tasks": "",
             "brickflow_internal_workflow_prefix": "",
             "brickflow_internal_workflow_suffix": "",
@@ -78,7 +74,7 @@ class TestTask:
         wf.suffix = "my_suffix"
         assert wf.get_task(task_function.__name__).brickflow_default_params == {
             "brickflow_internal_workflow_name": wf.name,
-            "brickflow_internal_task_name": "{{task_key}}",
+            "brickflow_internal_task_name": "{{task.name}}",
             "brickflow_internal_only_run_tasks": "",
             "brickflow_internal_workflow_prefix": "my_prefix",
             "brickflow_internal_workflow_suffix": "my_suffix",
@@ -534,13 +530,6 @@ class TestTask:
         assert task.main_class_name == "MainClass"
         assert task.jar_uri == "test_uri"
         assert task.parameters is None
-
-    def if_else_condition_task(self):
-        # Test the __init__ method
-        instance = IfElseConditionTask(left="left_value", right="right_value", op="==")
-        assert instance.left == "left_value"
-        assert instance.right == "right_value"
-        assert instance.op == "=="
 
     @patch("brickflow.bundles.model.JobsTasksSqlTaskAlert")
     @patch("brickflow.engine.task.SqlTask")
