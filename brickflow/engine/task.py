@@ -799,7 +799,7 @@ class Task:
     @property
     def builtin_notebook_params(self) -> Dict[str, str]:
         # 2 braces to escape for 1
-        return {i.value: f"{{{{{i.name}}}}}" for i in BrickflowBuiltInTaskVariables}
+        return {i.name: i.value for i in BrickflowBuiltInTaskVariables}
 
     @property
     def name(self) -> str:
@@ -810,7 +810,9 @@ class Task:
         return {
             BrickflowInternalVariables.workflow_id.value: self.workflow.name,
             # 2 braces to escape 1
-            BrickflowInternalVariables.task_id.value: f"{{{{{BrickflowBuiltInTaskVariables.task_key.name}}}}}",
+            BrickflowInternalVariables.task_id.value: (
+                f"{BrickflowBuiltInTaskVariables.brickflow_task_key.value}"
+            ),
             BrickflowInternalVariables.only_run_tasks.value: "",
             BrickflowInternalVariables.workflow_prefix.value: self.workflow.prefix
             or "",
