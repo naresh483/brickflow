@@ -26,14 +26,13 @@ class ContextMode(Enum):
 
 
 class BrickflowBuiltInTaskVariables(Enum):
-    # key is the {{ }} and value is the key
-    job_id = "brickflow_job_id"
-    run_id = "brickflow_run_id"
-    start_date = "brickflow_start_date"
-    start_time = "brickflow_start_time"
-    task_retry_count = "brickflow_task_retry_count"
-    parent_run_id = "brickflow_parent_run_id"
-    task_key = "brickflow_task_key"
+    brickflow_job_id = "{{job.id}}"
+    brickflow_run_id = "{{task.run_id}}"
+    brickflow_start_date = "{{job.trigger.time.iso_date}}"
+    brickflow_start_time = "{{job.trigger.time.iso_datetime}}"
+    brickflow_task_retry_count = "{{task.execution_count}}"
+    brickflow_parent_run_id = "{{job.run_id}}"
+    brickflow_task_key = "{{task.name}}"
 
 
 class BrickflowInternalVariables(Enum):
@@ -227,56 +226,56 @@ class Context:
         self._ensure_valid_project(project)
         self._current_project = project
 
-    @bind_variable(BrickflowBuiltInTaskVariables.task_key)
-    def task_key(self, *, debug: Optional[str] = None) -> Any:
+    @bind_variable(BrickflowBuiltInTaskVariables.brickflow_task_key)
+    def brickflow_task_key(self, *, debug: Optional[str] = None) -> Any:
         """
         This function fetches the task_key value using the bind_variable decorator.
         The implementation is intentionally empty because the decorator handles the logic.
         """
         pass
 
-    @bind_variable(BrickflowBuiltInTaskVariables.task_retry_count)
-    def task_retry_count(self, *, debug: Optional[str] = None) -> Any:
+    @bind_variable(BrickflowBuiltInTaskVariables.brickflow_task_retry_count)
+    def brickflow_task_retry_count(self, *, debug: Optional[str] = None) -> Any:
         """
         This function fetches the task_retry_count value using the bind_variable decorator.
         The implementation is intentionally empty because the decorator handles the logic.
         """
         pass
 
-    @bind_variable(BrickflowBuiltInTaskVariables.run_id)
-    def run_id(self, *, debug: Optional[str] = None) -> Any:
+    @bind_variable(BrickflowBuiltInTaskVariables.brickflow_run_id)
+    def brickflow_run_id(self, *, debug: Optional[str] = None) -> Any:
         """
         This function fetches the run_id value using the bind_variable decorator.
         The implementation is intentionally empty because the decorator handles the logic.
         """
         pass
 
-    @bind_variable(BrickflowBuiltInTaskVariables.job_id)
-    def job_id(self, *, debug: Optional[str] = None) -> Any:
+    @bind_variable(BrickflowBuiltInTaskVariables.brickflow_job_id)
+    def brickflow_job_id(self, *, debug: Optional[str] = None) -> Any:
         """
         This function fetches the job_id value using the bind_variable decorator.
         The implementation is intentionally empty because the decorator handles the logic.
         """
         pass
 
-    @bind_variable(BrickflowBuiltInTaskVariables.parent_run_id)
-    def parent_run_id(self, *, debug: Optional[str] = None) -> Any:
+    @bind_variable(BrickflowBuiltInTaskVariables.brickflow_parent_run_id)
+    def brickflow_parent_run_id(self, *, debug: Optional[str] = None) -> Any:
         """
         This function fetches the parent_run_id value using the bind_variable decorator.
         The implementation is intentionally empty because the decorator handles the logic.
         """
         pass
 
-    @bind_variable(BrickflowBuiltInTaskVariables.start_date)
-    def start_date(self, *, debug: Optional[str] = None) -> Any:
+    @bind_variable(BrickflowBuiltInTaskVariables.brickflow_start_date)
+    def brickflow_start_date(self, *, debug: Optional[str] = None) -> Any:
         """
         This function fetches the start_date value using the bind_variable decorator.
         The implementation is intentionally empty because the decorator handles the logic.
         """
         pass
 
-    @bind_variable(BrickflowBuiltInTaskVariables.start_time)
-    def start_time(self, *, debug: Optional[str] = None) -> Any:
+    @bind_variable(BrickflowBuiltInTaskVariables.brickflow_start_time)
+    def brickflow_start_time(self, *, debug: Optional[str] = None) -> Any:
         """
         This function fetches the start_time value using the bind_variable decorator.
         The implementation is intentionally empty because the decorator handles the logic.
