@@ -87,13 +87,13 @@ class TestContext:
     # @reset_ctx
     @patch("brickflow.context.ctx._dbutils")
     def test_context_obj(self, dbutils: Mock):
-        task_key = "hello-world"
+        brickflow_task_key = "hello-world"
         # assert that its a singleton
         assert id(ctx) == id(Context())
         ctx._dbutils = dbutils
         assert ctx.current_task is None
-        ctx._set_current_task(task_key)
-        assert ctx.current_task == task_key
+        ctx._set_current_task(brickflow_task_key)
+        assert ctx.current_task == brickflow_task_key
         ctx._reset_current_task()
         assert ctx.current_task is None
 
@@ -103,7 +103,7 @@ class TestContext:
             dbutils.widgets.get.assert_called_with(e.value)
 
         ctx._dbutils = None
-        assert ctx.task_key(debug=task_key) == task_key
+        assert ctx.brickflow_task_key(debug=brickflow_task_key) == brickflow_task_key
 
     @patch("brickflow.context.ctx._task_coms")
     def test_context_obj_task_coms(self, task_coms: Mock):
