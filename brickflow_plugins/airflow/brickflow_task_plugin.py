@@ -64,14 +64,14 @@ class AirflowOperatorBrickflowTaskPluginImpl(BrickflowTaskPluginSpec):
             setattr(_operator, "_log", ctx.log)
         log.info(
             "Handling both epoch and timestamp string",
-            epoch_to_pendulum_datetime(ctx.start_time(debug=None)),
+            epoch_to_pendulum_datetime(ctx.brickflow_start_time(debug=None)),
         )
 
         context: Context = get_task_context(
             task.task_id,
             _operator,
             workflow.schedule_quartz_expression,
-            epoch_to_pendulum_datetime(ctx.start_time(debug=None)),
+            epoch_to_pendulum_datetime(ctx.brickflow_start_time(debug=None)),
             tz=workflow.timezone,
         )
 
