@@ -63,7 +63,7 @@ class AirflowOperatorBrickflowTaskPluginImpl(BrickflowTaskPluginSpec):
             # overwrite the operator logger if it has one to the brickflow logger
             setattr(_operator, "_log", ctx.log)
         log.info(
-            "Handling both epoch and timestamp string",
+            "Handling both epoch and timestamp string: %s",
             epoch_to_pendulum_datetime(ctx.brickflow_start_time(debug=None)),
         )
 
