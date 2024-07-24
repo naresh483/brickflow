@@ -26,13 +26,25 @@ from brickflow_plugins.secrets import BrickflowSecretsBackend
 
 
 def epoch_to_pendulum_datetime(time: Optional[str]):
+    log.info(
+        "inside epoc: %s",time
+    )
     if time is None:
         return None
     if isinstance(time, str):
+        log.info(
+            "inside isinstance : %s",time
+        )
         if re.match(r"^-?\d+$", time):  # Check if the string is a valid integer
+            log.info(
+                "inside re.matche : %s",time
+            )
             time = int(time)
             return pendulum.from_timestamp(time / 1000)
         else:
+            log.info(
+                "inside else re.matche : %s",time
+            )
             return pendulum.parse(time)
     return pendulum.from_timestamp(time / 1000)
 
