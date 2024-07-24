@@ -25,28 +25,27 @@ from brickflow_plugins.airflow.operators import get_modifier_chain
 from brickflow_plugins.secrets import BrickflowSecretsBackend
 
 
-def epoch_to_pendulum_datetime(time: Optional[str]):
-    log.info(
-        "inside epoc: %s",time
-    )
+def epoch_to_pendulum_datetime(time: Optional[str]) -> Optional[pendulum.DateTime]:
     if time is None:
+        log.info("Input time is None")
         return None
+    log.info("Input time: %s", time)
     if isinstance(time, str):
-        log.info(
-            "inside isinstance : %s",time
-        )
-        if re.match(r"^-?\d+$", time):  # Check if the string is a valid integer
-            log.info(
-                "inside re.matche : %s",time
-            )
-            time = int(time)
-            return pendulum.from_timestamp(time / 1000)
-        else:
-            log.info(
-                "inside else re.matche : %s",time
-            )
+        if re.match(r"^-?\d+$", time):  # Check if the string is a valid integer (epoch)
+            epoch_time = int(time)
+            return pendulum.from_timestamp(epoch_time / 1000)
+        try:
+            # Attempt to parse the string as a timestamp
             return pendulum.parse(time)
-    return pendulum.from_timestamp(time / 1000)
+        except ValueError as e:
+            log.error("Error parsing time string: %s", e)
+            return None
+    try:
+        # If time is not a string, attempt to convert assuming it's an epoch integer
+        return pendulum.from_timestamp(int(time) / 1000)
+    except (ValueError, TypeError) as e:
+        log.error("Error converting non-string time: %s", e)
+        return None
 
 
 class AirflowOperatorBrickflowTaskPluginImpl(BrickflowTaskPluginSpec):
